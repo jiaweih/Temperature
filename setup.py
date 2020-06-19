@@ -12,6 +12,7 @@ setup(name='temperature',
       packages=find_packages(where='src'),
       install_requires=['numpy',
                         'scipy',
+                        'matplotlib',
                         'xspline',
                         'pytest'],
       zip_safe=False)
