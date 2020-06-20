@@ -90,16 +90,16 @@ class TrendResult:
         #         22.0,
         #         self.max_mean_temp
         #     ])
-        self.beta_spline = xspline.xspline(
+        self.beta_spline = xspline.XSpline(
             beta_spline_knots, beta_spline_degree,
             l_linear=True, r_linear=True)
-        self.gamma_spline = xspline.xspline(
+        self.gamma_spline = xspline.XSpline(
             gamma_spline_knots, gamma_spline_degree,
             l_linear=True, r_linear=True)
 
         # compute the spline bases coefficients
-        X_beta = self.beta_spline.designMat(self.mean_temp)
-        X_gamma = self.gamma_spline.designMat(self.mean_temp)
+        X_beta = self.beta_spline.design_mat(self.mean_temp)
+        X_gamma = self.gamma_spline.design_mat(self.mean_temp)
         self.c_beta = np.linalg.solve(X_beta.T.dot(X_beta),
                                       X_beta.T.dot(beta))
         self.c_gamma = np.linalg.solve(X_gamma.T.dot(X_gamma),
@@ -107,12 +107,12 @@ class TrendResult:
 
     def beta_at_mean_temp(self, mean_temp):
         """return beta(s) at given mean_temp"""
-        X = self.beta_spline.designMat(mean_temp)
+        X = self.beta_spline.design_mat(mean_temp)
         return X.dot(self.c_beta)
 
     def gamma_at_mean_temp(self, mean_temp):
         """return gamma(s) at give mean_temp"""
-        X = self.gamma_spline.designMat(mean_temp)
+        X = self.gamma_spline.design_mat(mean_temp)
         return X.dot(self.c_gamma)
 
     def sample_random_effects(self, num_samples):
@@ -158,8 +158,8 @@ class SurfaceResult:
         num_points = mean_temp.size
         scaled_daily_temp = scale_daily_temp(mean_temp, daily_temp,
                                              self.scale_params)
-        X = self.spline.designMat([mean_temp, scaled_daily_temp],
-                                  grid_off=True,
+        X = self.spline.design_mat([mean_temp, scaled_daily_temp],
+                                  is_grid=False,
                                   l_extra_list=[True, True],
                                   r_extra_list=[True, True])
         return X.dot(beta)
@@ -243,7 +243,7 @@ def fit_spline(obs_mean, obs_std, cov, spline):
     """Fit a spline by given observatinos and spline
     """
 
-    M = spline.designMat(cov)
+    M = spline.design_mat(cov)
     beta = np.linalg.solve((M.T/obs_std**2).dot(M),
                            (M.T/obs_std**2).dot(obs_mean))
 

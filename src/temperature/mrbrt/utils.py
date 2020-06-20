@@ -2,7 +2,7 @@
 import numpy as np
 import cdd
 import ipopt
-from xspline import xspline
+from xspline import XSpline
 
 
 # different function forms and its jacobians
@@ -73,11 +73,11 @@ def funcXCov(x_cov, spline_list=[]):
         F, JF = logRatioLinear(mat1, mat2)
 
     if x_cov['cov_type'] == 'spline':
-        mat = spline.designMat(mat)
+        mat = spline.design_mat(mat)
         F, JF = linear(mat)
 
     if x_cov['cov_type'] == 'ndspline':
-        mat = spline.designMat(mat, grid_off=True)
+        mat = spline.design_mat(mat, is_grid=False)
         F, JF = linear(mat)
 
     if x_cov['cov_type'] == 'spline_integral':
@@ -85,13 +85,13 @@ def funcXCov(x_cov, spline_list=[]):
         F, JF = linear(mat)
 
     if x_cov['cov_type'] == 'diff_spline':
-        mat1 = spline.designMat(mat[0])
-        mat2 = spline.designMat(mat[1])
+        mat1 = spline.design_mat(mat[0])
+        mat2 = spline.design_mat(mat[1])
         F, JF = linear(mat1 - mat2)
 
     if x_cov['cov_type'] == 'ratio_spline':
-        mat1 = spline.designMat(mat[0])
-        mat2 = spline.designMat(mat[1])
+        mat1 = spline.design_mat(mat[0])
+        mat2 = spline.design_mat(mat[1])
         F, JF = ratioLinear(mat1, mat2)
 
     if x_cov['cov_type'] == 'ratio_spline_integral':
@@ -100,8 +100,8 @@ def funcXCov(x_cov, spline_list=[]):
         F, JF = ratioLinear(mat1, mat2)
 
     if x_cov['cov_type'] == 'log_ratio_spline':
-        mat1 = spline.designMat(mat[0])
-        mat2 = spline.designMat(mat[1])
+        mat1 = spline.design_mat(mat[0])
+        mat2 = spline.design_mat(mat[1])
         F, JF = logRatioLinear(mat1, mat2)
 
     if x_cov['cov_type'] == 'log_ratio_spline_integral':
@@ -125,10 +125,10 @@ def funcZCov(z_cov, spline_list=[]):
         spline = spline_list[spline_id]
 
     if z_cov['cov_type'] == 'spline':
-        mat = spline.designMat(mat)
+        mat = spline.design_mat(mat)
 
     if z_cov['cov_type'] == 'ndspline':
-        mat = spline.designMat(mat, grid_off=True)
+        mat = spline.design_mat(mat, is_grid=False)
 
     if z_cov['cov_type'] == 'spline_integral':
         mat = spline.designIMat(mat[0], mat[1], 1)
@@ -145,7 +145,7 @@ def normalizedDesignIMat(x0, x1, spline):
     mat = np.zeros((dx.size, spline.num_spline_bases))
 
     if np.any(val_idx):
-        mat[val_idx, :] = spline.designMat(x0[val_idx])
+        mat[val_idx, :] = spline.design_mat(x0[val_idx])
 
     mat[int_idx, :] = spline.designIMat(x0[int_idx], x1[int_idx], 1)/\
         dx[int_idx, :]
@@ -295,7 +295,7 @@ def scoreMR_TV(mr, n=1):
 
     spline = mr.spline_list[0]
     x = np.linspace(spline.knots[0], spline.knots[-1], 201)
-    dmat = spline.designDMat(x, n)
+    dmat = spline.design_dmat(x, n)
     d = dmat.dot(mr.beta_soln[mr.id_spline_beta_list[0]])
     return -np.mean(np.abs(d))
 
@@ -308,9 +308,9 @@ def scoreMR_TV(mr, n=1):
 #     spline = mr.spline_list[0]
 
 #     x = np.linspace(spline.knots[0], spline.knots[-1], 201)
-#     y = spline.designMat(x).dot(mr.beta_soln)
-#     dy = spline.designDMat(x, 1).dot(mr.beta_soln)
-#     ddy = spline.designDMat(x, 2).dot(mr.beta_soln)
+#     y = spline.design_mat(x).dot(mr.beta_soln)
+#     dy = spline.design_dmat(x, 1).dot(mr.beta_soln)
+#     ddy = spline.design_dmat(x, 2).dot(mr.beta_soln)
 
 #     d = (ddy*y - dy**2)/y**2
 #     return -np.mean(abs(d))
@@ -368,8 +368,8 @@ def ratioInit(mr, x_cov_id):
     if x_cov['cov_type'] == 'ratio_spline':
         x = x_cov['mat']
         spline = mr.spline_list[x_cov['spline_id']]
-        mat1 = spline.designMat(x[0])
-        mat2 = spline.designMat(x[1])
+        mat1 = spline.design_mat(x[0])
+        mat2 = spline.design_mat(x[1])
     elif x_cov['cov_type'] == 'ratio_spline_integral':
         x = x_cov['mat']
         spline = mr.spline_list[x_cov['spline_id']]
@@ -379,8 +379,8 @@ def ratioInit(mr, x_cov_id):
         Y = np.exp(Y)
         x = x_cov['mat']
         spline = mr.spline_list[x_cov['spline_id']]
-        mat1 = spline.designMat(x[0])
-        mat2 = spline.designMat(x[1])
+        mat1 = spline.design_mat(x[0])
+        mat2 = spline.design_mat(x[1])
     elif x_cov['cov_type'] == 'log_ratio_spline_integral':
         Y = np.exp(Y)
         x = x_cov['mat']
@@ -654,7 +654,7 @@ def constructPrior(prior_list, mr):
             num_constraints_list.append(np.prod(num_points))
             id_C_var_list.append(mr.id_spline_beta_list[spline_id])
 
-            mat = spline.designMat(x)
+            mat = spline.design_mat(x)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             c_sub = rangeUPrior(prior['indicator'], mat.shape[0])
@@ -670,7 +670,7 @@ def constructPrior(prior_list, mr):
             num_regularizers_list.append(np.prod(num_points))
             id_H_var_list.append(mr.id_spline_beta_list[spline_id])
 
-            mat = spline.designMat(x)
+            mat = spline.design_mat(x)
             H_sub = lambda beta, mat=mat: mat.dot(beta)
             JH_sub = lambda beta, mat=mat: mat
             h_sub = rangeGPrior(prior['indicator'], mat.shape[0])
@@ -688,7 +688,7 @@ def constructPrior(prior_list, mr):
 
             n = [0]*spline.ndim
             n[prior['dim_id']] = 1
-            mat = spline.designDMat(x, n)
+            mat = spline.design_dmat(x, n)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             c_sub = rangeUPrior(prior['indicator'], mat.shape[0])
@@ -706,7 +706,7 @@ def constructPrior(prior_list, mr):
 
             n = [0]*spline.ndim
             n[prior['dim_id']] = 1
-            mat = spline.designDMat(x, n)
+            mat = spline.design_dmat(x, n)
             H_sub = lambda beta, mat=mat: mat.dot(beta)
             JH_sub = lambda beta, mat=mat: mat
             h_sub = rangeGPrior(prior['indicator'], mat.shape[0])
@@ -724,7 +724,7 @@ def constructPrior(prior_list, mr):
 
             n = [0]*spline.ndim
             n[prior['dim_id']] = 1
-            mat = spline.designDMat(x, n)
+            mat = spline.design_dmat(x, n)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             if prior['indicator'] == 'increasing':
@@ -745,7 +745,7 @@ def constructPrior(prior_list, mr):
 
             n = [0]*spline.ndim
             n[prior['dim_id']] = 2
-            mat = spline.designDMat(x, n)
+            mat = spline.design_dmat(x, n)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             if prior['indicator'] == 'convex':
@@ -754,31 +754,31 @@ def constructPrior(prior_list, mr):
                 c_sub = negativeUPrior(mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_function_uprior':
-            mat = spline.designMat(x)
+            mat = spline.design_mat(x)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             c_sub = rangeUPrior(prior['indicator'], mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_function_gprior':
-            mat = spline.designMat(x)
+            mat = spline.design_mat(x)
             H_sub = lambda beta, mat=mat: mat.dot(beta)
             JH_sub = lambda beta, mat=mat: mat
             h_sub = rangeGPrior(prior['indicator'], mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_derivative_uprior':
-            mat = spline.designDMat(x, 1)
+            mat = spline.design_dmat(x, 1)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             c_sub = rangeUPrior(prior['indicator'], mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_derivative_gprior':
-            mat = spline.designDMat(x, 1)
+            mat = spline.design_dmat(x, 1)
             H_sub = lambda beta, mat=mat: mat.dot(beta)
             JH_sub = lambda beta, mat=mat: mat
             h_sub = rangeGPrior(prior['indicator'], mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_monotonicity':
-            mat = spline.designDMat(x, 1)
+            mat = spline.design_dmat(x, 1)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             if prior['indicator'] == 'increasing':
@@ -787,7 +787,7 @@ def constructPrior(prior_list, mr):
                 c_sub = negativeUPrior(mat.shape[0])
 
         if prior['prior_type'] == 'spline_shape_convexity':
-            mat = spline.designDMat(x, 2)
+            mat = spline.design_dmat(x, 2)
             C_sub = lambda beta, mat=mat: mat.dot(beta)
             JC_sub = lambda beta, mat=mat: mat
             if prior['indicator'] == 'convex':

@@ -140,15 +140,15 @@ def adjust_mean_mtslice(tdata_mt, ref=None):
 
         # fit the curve
         if tdata_mt.study_sizes[i] >= 5:
-            spline = xspline.xspline(
+            spline = xspline.XSpline(
                 np.array([cov.min(), ref, cov.max()]),
                 2, l_linear=True)
         else:
-            spline = xspline.xspline(
+            spline = xspline.XSpline(
                 np.array([cov.min(), cov.max()]), 1)
 
         beta = utils.fit_spline(obs_mean, obs_std, cov, spline)
-        ref_lnrr = spline.designMat(ref).dot(beta)
+        ref_lnrr = spline.design_mat(ref).dot(beta)
 
         # adjust the mean
         tdata_mt.obs_mean[study_slices[i]] -= ref_lnrr
@@ -178,7 +178,7 @@ def adjust_agg_std_mtslice(tdata_mt, ref=None):
             ref = tdata_mt.mean_temp[0]
 
     # fit the curve
-    spline = xspline.xspline(
+    spline = xspline.XSpline(
             np.array([tdata_mt.daily_temp.min(), ref,
                       tdata_mt.daily_temp.max()]), 2, l_linear=True)
 
@@ -188,7 +188,7 @@ def adjust_agg_std_mtslice(tdata_mt, ref=None):
                             spline)
 
     residual = (tdata_mt.obs_mean -
-                spline.designMat(tdata_mt.daily_temp).dot(beta))
+                spline.design_mat(tdata_mt.daily_temp).dot(beta))
     residual /= tdata_mt.obs_std
     # print(np.maximum(1.0, np.std(residual)))
     tdata_mt.obs_std *= np.maximum(3.0, np.std(residual))
@@ -251,14 +251,14 @@ def fit_trend_mtslice(tdata_at_mean_temp, tmrl, inlier_pct=0.9, debug=False):
     cov = tdata_at_mean_temp.daily_temp
     knots = np.array([cov.min(), tmrl, cov.max()])
     degree = 1
-    spline = xspline.xspline(knots, degree)
+    spline = xspline.XSpline(knots, degree)
 
     l1 = knots[1] - knots[0]
     l2 = knots[2] - knots[1]
     mat_transform = np.array([[1.0, 0.0, 0.0],
                               [1.0, l1,  0.0],
                               [1.0, l1,  l2 ]])
-    M = spline.designMat(cov).dot(mat_transform)
+    M = spline.design_mat(cov).dot(mat_transform)
     M[:, 1] -= M[:, 0]*l1
     M = M[:, 1:]
     scale = np.linalg.norm(M, axis=0)
