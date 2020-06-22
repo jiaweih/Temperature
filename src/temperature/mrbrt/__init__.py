@@ -1,6 +1,6 @@
 import numpy as np
 from copy import deepcopy
-from xspline import xspline
+from xspline import XSpline
 import limetr
 from limetr import LimeTr
 from mrbrt import utils
