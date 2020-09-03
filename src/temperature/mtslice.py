@@ -210,6 +210,7 @@ def fit_trend(tdata, surface_result, inlier_pct=1.0):
         tdata_at_mean_temp = extract_mtslice(tdata_residual, mean_temp)
         # tmrl = surface_result.tmrl[i]
         tmrl = np.quantile(tdata_at_mean_temp.daily_temp, 0.75)
+        surface_result.tmrl[i] = tmrl
         # print(mean_temp, tmrl)
         (beta_at_mt,
          beta_var_at_mt,
@@ -228,7 +229,7 @@ def fit_trend(tdata, surface_result, inlier_pct=1.0):
 
     trend_result = utils.TrendResult(beta, beta_var, gamma, random_effects,
                                      tdata.unique_mean_temp)
-
+    # import pdb; pdb.set_trace()
     return trend_result, tdata_residual
 
 
