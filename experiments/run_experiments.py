@@ -36,7 +36,7 @@ DATA_PATH = {
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean.csv',
     # 'new_data':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/era5_chn/data/'\
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_allLocations.csv'
-    'withZaf_internal_knots':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
+    'withZaf_internal_knots_old_tmrl':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
                  'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations.csv'
 }
 
