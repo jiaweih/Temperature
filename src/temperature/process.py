@@ -418,8 +418,8 @@ def sample_surface(mt, dt, num_samples, surface_result, trend_result,
         if include_re:
             u1_samples = trend_result.re_samples[i, 0, mt_id]
             u2_samples = trend_result.re_samples[i, 1, mt_id]
-            trend_samples = np.maximum(dt - tmrl[i], 0.0)*u2_samples + \
-                np.minimum(dt - tmrl[i], 0.0)*u1_samples
+            trend_samples = np.maximum(dt - tmrl, 0.0)*u2_samples + \
+                np.minimum(dt - tmrl, 0.0)*u1_samples
             curve_sample += trend_samples
 
         curve_samples.append(curve_sample)
