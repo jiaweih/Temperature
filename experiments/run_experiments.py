@@ -36,7 +36,7 @@ DATA_PATH = {
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean.csv',
     # 'new_data':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/era5_chn/data/'\
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_allLocations.csv'
-    'withZaf_internal_knots':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
+    'withZaf_10000':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
                  'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations.csv'
 }
 
@@ -149,4 +149,5 @@ if __name__ == '__main__':
     for data_label, data_path in DATA_PATH.items():
         run_temp_model(outcome=sys.argv[1],
                        path_to_data=data_path,
-                       path_to_result_folder=f'/home/j/temp/jiaweihe/temperature/2020/{data_label}/{sys.argv[1]}')
+                       path_to_result_folder=f'/home/j/temp/jiaweihe/temperature/2020/{data_label}/{sys.argv[1]}',
+                       n_samples=10000)
