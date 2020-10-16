@@ -30,13 +30,16 @@ import utils
 import process
 import viz
 import actions
+import score
 
 DATA_PATH = {
     # 'old_data':'/home/j/temp/zhengp/temperature_current/data/'\
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean.csv',
     # 'new_data':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/era5_chn/data/'\
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_allLocations.csv'
-    'withZaf_10000_draws':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
+    # 'withZaf_10000_draws_withSDI':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
+    #              'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations+sdi.csv'
+    'test_score':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
                  'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations.csv'
 }
 
@@ -103,13 +106,20 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
         path_to_result_folder + "/" + outcome + "_curve_samples.csv",
         index=False
     )
+
+    evidence_score = score.scorelator(curve_samples_df)
+    evidence_score.to_csv(
+        path_to_result_folder + "/" + outcome + "_score.csv",
+        index=False
+    )
+
     del curve_samples, curve_samples_df
 
     # plot the result
     # -------------------------------------------------------------------------
     # 3D surface and the level plot
     actions.surface.plot_surface(tdata_agg, surface_result)
-    plt.savefig(path_to_result_folder + "/" + outcome + "_surface.png",
+    plt.savefig(path_to_result_folder + "/" + outcome + "_surface.pdf",
                 bbox_inches="tight")
     # plot uncertainty for each mean temp (can be subset of this)
     plt.figure(figsize=(8, 6))
@@ -123,7 +133,7 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
                 ylim=[-1.0, 1.0], ax=ax)
         ax.set_xlabel("daily temperature")
         ax.set_title(outcome + " at mean temperature %i" %mt)
-        fig.savefig(path_to_result_folder + "/" + outcome + "_slice_%i.png" % mt,
+        fig.savefig(path_to_result_folder + "/" + outcome + "_slice_%i.pdf" % mt,
                     bbox_inches="tight")
         plt.close(fig)
 
