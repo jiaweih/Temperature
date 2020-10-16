@@ -116,7 +116,6 @@ def adjust_mean(tdata, ref=None):
     """
     if ref is None:
         ref = tdata.unique_mean_temp
-
     tdata_list = []
     for i, mt in enumerate(tdata.unique_mean_temp):
         tdata_mt = extract_mtslice(tdata, mt)
@@ -131,7 +130,7 @@ def adjust_mean_mtslice(tdata_mt, ref=None):
     """
     if ref is None:
         ref = tdata_mt.mean_temp[0]
-
+    # import pdb; pdb.set_trace()
     study_slices = utils.sizes_to_slices(tdata_mt.study_sizes)
     for i in range(tdata_mt.num_studies):
         obs_mean = tdata_mt.obs_mean[study_slices[i]]
@@ -152,7 +151,6 @@ def adjust_mean_mtslice(tdata_mt, ref=None):
 
         # adjust the mean
         tdata_mt.obs_mean[study_slices[i]] -= ref_lnrr
-
     return tdata_mt
 
 
@@ -210,7 +208,9 @@ def fit_trend(tdata, surface_result, inlier_pct=1.0):
 
     for i, mean_temp in enumerate(tdata.unique_mean_temp):
         tdata_at_mean_temp = extract_mtslice(tdata_residual, mean_temp)
-        tmrl = surface_result.tmrl[i]
+        # tmrl = surface_result.tmrl[i]
+        tmrl = np.quantile(tdata_at_mean_temp.daily_temp, 0.75)
+        surface_result.tmrl[i] = tmrl
         # print(mean_temp, tmrl)
         (beta_at_mt,
          beta_var_at_mt,
@@ -229,7 +229,7 @@ def fit_trend(tdata, surface_result, inlier_pct=1.0):
 
     trend_result = utils.TrendResult(beta, beta_var, gamma, random_effects,
                                      tdata.unique_mean_temp)
-
+    # import pdb; pdb.set_trace()
     return trend_result, tdata_residual
 
 

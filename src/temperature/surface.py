@@ -40,6 +40,9 @@ def fit_surface(tdata_agg,
     else:
         dt_degree = 3
         dt_knots = np.linspace(scaled_dt.min(), scaled_dt.max(), 3)
+        # Add extra knot
+        # knot_scale = np.array([0.0, 0.5, 0.75, 1.0])
+        # dt_knots = scaled_dt.min() + knot_scale*(scaled_dt.max() - scaled_dt.min())
     spline_list = [xspline.NDXSpline(2,
                                      [mt_knots, dt_knots],
                                      [mt_degree, dt_degree])]
