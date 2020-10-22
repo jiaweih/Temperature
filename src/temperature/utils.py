@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import xspline
 import ipopt
+from typing import Tuple
+import process
 
 
 class TempData:
@@ -279,3 +281,24 @@ def create_grid_points_at_mean_temp(mt, ddt,
     dt = unscale_daily_temp(mt, scaled_dt, scale_params)
 
     return np.repeat(mt, dt.size), dt    
+
+
+def create_grid_points_alt(mts, ddt, tdata):
+    mt_list = []
+    dt_list = []
+    for mt in mts:
+        tdata_amt = process.extract_at_mean_temp(tdata, mt)
+        mt_sub, dt_sub = create_grid_points_at_mean_temp_alt(
+                mt, ddt,
+                dt_lb=tdata_amt.daily_temp.min(),
+                dt_ub=tdata_amt.daily_temp.max()
+            )
+        mt_list.append(mt_sub)
+        dt_list.append(dt_sub)
+    return np.hstack(mt_list), np.hstack(dt_list)
+
+
+def create_grid_points_at_mean_temp_alt(mt: float, ddt: float, 
+    dt_lb: float, dt_ub: float) -> Tuple[np.ndarray]:
+    dt = np.arange(dt_lb, dt_ub + ddt, ddt)
+    return np.repeat(mt, dt.size), dt

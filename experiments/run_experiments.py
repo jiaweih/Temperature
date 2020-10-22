@@ -92,7 +92,7 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
 
     # predict surface with UI
     # -----------------------------------------------------------------------------
-    annual_temps, daily_temps = utils.create_grid_points(np.unique(tdata_agg.mean_temp), 0.1)
+    annual_temps, daily_temps = utils.create_grid_points_alt(np.unique(tdata_agg.mean_temp), 0.1, tdata)
     curve_samples = process.sample_surface(
         mt=annual_temps, dt=daily_temps, num_samples=n_samples,
         surface_result=surface_result, trend_result=trend_result,
@@ -107,7 +107,8 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
         index=False
     )
 
-    evidence_score = score.scorelator(curve_samples_df)
+    evidence_score = score.scorelator(curve_samples_df, trend_result, 
+        tdata, outcome, path_to_result_folder)
     evidence_score.to_csv(
         path_to_result_folder + "/" + outcome + "_score.csv",
         index=False
