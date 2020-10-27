@@ -39,7 +39,7 @@ DATA_PATH = {
     #            'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_allLocations.csv'
     # 'withZaf_10000_draws_withSDI':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
     #              'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations+sdi.csv'
-    'test_score':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
+    'withZaf_evidence_score_without_gamma':'/home/j/temp/Jeff/temperature/combinedGraphs/nonParametricTests/withZaf/data/'\
                  'mrBrt_R_meanTempDegree_adm1_dailyTemp_refzoneMean_2-28_allLocations.csv'
 }
 
@@ -96,7 +96,7 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
     curve_samples = process.sample_surface(
         mt=annual_temps, dt=daily_temps, num_samples=n_samples,
         surface_result=surface_result, trend_result=trend_result,
-        include_re=True
+        include_re=False
     )
     curve_samples_df = pd.DataFrame(
         np.vstack([annual_temps, daily_temps, curve_samples]).T,
