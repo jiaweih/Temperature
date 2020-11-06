@@ -96,7 +96,7 @@ def run_temp_model(outcome, path_to_data, path_to_result_folder, n_samples=1000)
     curve_samples = process.sample_surface(
         mt=annual_temps, dt=daily_temps, num_samples=n_samples,
         surface_result=surface_result, trend_result=trend_result,
-        include_re=False
+        include_re=True
     )
     curve_samples_df = pd.DataFrame(
         np.vstack([annual_temps, daily_temps, curve_samples]).T,
